@@ -26,6 +26,7 @@ Piece.fromIndex = function (index) {
         [1, 1, 1],
         [0, 0, 0],
       ]);
+      break;
     case 3: // Z
       piece = new Piece([
         [1, 1, 0],
@@ -58,10 +59,8 @@ Piece.fromIndex = function (index) {
   }
   piece.row = 0;
   piece.column = Math.floor((10 - piece.dimension) / 2); // Centralize
-
   return piece;
 };
-
 Piece.prototype.clone = function () {
   var _cells = new Array(this.dimension);
   for (var r = 0; r < this.dimension; r++) {
@@ -120,7 +119,6 @@ Piece.prototype.rotate = function (rotations) {
         _cells[2][1] = this.cells[2][2];
         break;
     }
-
     this.cells = _cells;
   }
 };
