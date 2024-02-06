@@ -7,7 +7,6 @@ function GameManager() {
   var gridContext = gridCanvas.getContext("2d");
   var nextContext = nextCanvas.getContext("2d");
   document.addEventListener("keydown", onKeyDown);
-
   var grid = new Grid(22, 10);
   var rpg = new RandomPieceGenerator();
   var ai = new AI(0.510066, 0.760666, 0.35663, 0.184483);
@@ -27,18 +26,13 @@ function GameManager() {
       ")"
     );
   }
-
   function clearGridCanvas() {
     gridContext.save();
-
     gridContext.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-
     gridContext.restore();
   }
-
   function drawGridCanvas() {
     gridContext.save();
-
     for (var r = 2; r < grid.rows; r++) {
       for (var c = 0; c < grid.columns; c++) {
         if (grid.cells[r][c] != 0) {
@@ -49,13 +43,10 @@ function GameManager() {
         }
       }
     }
-
     gridContext.restore();
   }
-
   function drawWorkingPiece() {
     gridContext.save();
-
     for (var r = 0; r < workingPiece.dimension; r++) {
       for (var c = 0; c < workingPiece.dimension; c++) {
         if (workingPiece.cells[r][c] != 0 && r + workingPiece.row >= 2) {
@@ -76,13 +67,10 @@ function GameManager() {
         }
       }
     }
-
     gridContext.restore();
   }
-
   function undrawWorkingPiece() {
     gridContext.save();
-
     for (var r = 0; r < workingPiece.dimension; r++) {
       for (var c = 0; c < workingPiece.dimension; c++) {
         if (workingPiece.cells[r][c] != 0 && r + workingPiece.row >= 2) {
@@ -95,13 +83,10 @@ function GameManager() {
         }
       }
     }
-
     gridContext.restore();
   }
-
   function redrawNextCanvas() {
     nextContext.save();
-
     nextContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
     var next = workingPieces[1];
     var xOffset =
@@ -130,10 +115,8 @@ function GameManager() {
         }
       }
     }
-
     nextContext.restore();
   }
-
   function updateScoreContainer() {
     scoreContainer.innerHTML = score.toString();
   }
@@ -168,7 +151,6 @@ function GameManager() {
       alert("Game over!");
     }
   }
-
   function onKeyDown(event) {
     if (isAiActive) {
       return;
@@ -219,8 +201,11 @@ function GameManager() {
     workingPieces = [rpg.nextPiece(), rpg.nextPiece()];
     workingPiece = workingPieces[0];
     score = 0;
+    clearGridCanvas();
+    redrawNextCanvas();
     gravityTimer.resetForward(isAiActive ? 1000 / 60 : 500);
   };
+
   aiButton.style.backgroundColor = "#e9e9ff";
   redrawNextCanvas();
   gravityTimer.start();
