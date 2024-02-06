@@ -3,14 +3,12 @@ function GameManager() {
   this.scoreContainer = document.getElementById("score-container");
   this.resetButton = document.getElementById("reset-button");
   this.aiButton = document.getElementById("ai-button");
-
   this.gravityUpdater = new Updater();
   this.gravityUpdater.skipping = this.aiActive;
   this.gravityUpdater.onUpdate(function () {
     self.applyGravity();
     self.actuate();
   });
-
   var self = this;
   document.addEventListener("keydown", function (event) {
     switch (event.which) {
@@ -36,12 +34,10 @@ function GameManager() {
     }
   });
   this.aiButton.onclick = function () {
-    self.aiActive = !self.aiActive;
-    self.gravityUpdater.skipping = self.aiActive;
     if (self.aiActive) {
-      self.aiButton.innerText = "Stop AI";
+      self.stopAI();
     } else {
-      self.aiButton.innerText = "Run AI";
+      self.startAI();
     }
   };
   this.resetButton.onclick = function () {
@@ -49,12 +45,11 @@ function GameManager() {
   };
 
   this.setup();
+  this.startAI();
   this.gravityUpdater.checkUpdate(Date.now());
 }
 
 GameManager.prototype.setup = function () {
-  this.aiButton.innerText = "Run AI";
-
   this.grid = new Grid(22, 10);
   this.rpg = new RandomPieceGenerator();
   this.ai = new AI(
@@ -68,9 +63,8 @@ GameManager.prototype.setup = function () {
 
   this.isOver = true;
   this.score = 0;
-  this.aiActive = false;
-  this.gravityUpdater.skipping = false;
 
+  this.stopAI();
   this.actuate();
 };
 
@@ -79,12 +73,9 @@ GameManager.prototype.actuate = function () {
   if (this.workingPiece != null) {
     _grid.addPiece(this.workingPiece);
   }
-
   var context = this.gridCanvas.getContext("2d");
-
   context.save();
   context.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-
   for (var r = 2; r < _grid.rows; r++) {
     for (var c = 0; c < _grid.columns; c++) {
       if (_grid.cells[r][c] == 1) {
@@ -95,9 +86,22 @@ GameManager.prototype.actuate = function () {
       }
     }
   }
-
   context.restore();
   this.scoreContainer.innerHTML = this.score.toString();
+};
+
+GameManager.prototype.startAI = function () {
+  this.aiActive = true;
+  this.aiButton.innerText = "Stop AI";
+  this.aiButton.style.backgroundColor = "#e9e9ff";
+  this.gravityUpdater.skipping = true;
+};
+
+GameManager.prototype.stopAI = function () {
+  this.aiActive = false;
+  this.aiButton.innerText = "Start AI";
+  this.aiButton.style.backgroundColor = "#f9f9f9";
+  this.gravityUpdater.skipping = false;
 };
 
 GameManager.prototype.setWorkingPiece = function () {
@@ -117,21 +121,19 @@ GameManager.prototype.setWorkingPiece = function () {
     alert("Game Over!");
   }
 };
-
 GameManager.prototype.applyGravity = function () {
   if (this.grid.canMoveDown(this.workingPiece)) {
     this.workingPiece.row++;
   } else {
     this.gravityUpdater.skipping = false;
+    this.setWorkingPiece();
   }
 };
 GameManager.prototype.drop = function () {
   while (this.grid.canMoveDown(this.workingPiece)) {
     this.workingPiece.row++;
   }
-  this.setWorkingPiece();
 };
-
 GameManager.prototype.moveLeft = function () {
   if (this.grid.canMoveLeft(this.workingPiece)) {
     this.workingPiece.column--;
