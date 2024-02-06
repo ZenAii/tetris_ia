@@ -13,7 +13,6 @@ function GameManager() {
   var isAiActive = true;
   var gravityTimer = new Timer(onGravityTimerTick, 1000 / 60);
   var score = 0;
-
   function intToRGBHexString(v) {
     return (
       "rgb(" +
@@ -25,7 +24,6 @@ function GameManager() {
       ")"
     );
   }
-
   function updateGridCanvas() {
     var _grid = grid.clone();
     if (workingPiece != null) {
@@ -107,8 +105,10 @@ function GameManager() {
       updateNextCanvas();
     } else {
       gravityTimer.stop();
+      console.log("Game over!");
     }
   }
+
   function onKeyDown(event) {
     if (isAiActive) {
       return;
