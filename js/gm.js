@@ -4,7 +4,10 @@ function GameManager() {
   var scoreContainer = document.getElementById("score-container");
   var resetButton = document.getElementById("reset-button");
   var aiButton = document.getElementById("ai-button");
+  var gridContext = gridCanvas.getContext("2d");
+  var nextContext = nextCanvas.getContext("2d");
   document.addEventListener("keydown", onKeyDown);
+
   var grid = new Grid(22, 10);
   var rpg = new RandomPieceGenerator();
   var ai = new AI(0.510066, 0.760666, 0.35663, 0.184483);
@@ -24,30 +27,82 @@ function GameManager() {
       ")"
     );
   }
-  function updateGridCanvas() {
-    var _grid = grid.clone();
-    if (workingPiece != null) {
-      _grid.addPiece(workingPiece);
-    }
-    var context = gridCanvas.getContext("2d");
-    context.save();
-    context.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-    for (var r = 2; r < _grid.rows; r++) {
-      for (var c = 0; c < _grid.columns; c++) {
-        if (_grid.cells[r][c] != 0) {
-          context.fillStyle = intToRGBHexString(_grid.cells[r][c]);
-          context.fillRect(20 * c, 20 * (r - 2), 20, 20);
-          context.strokeStyle = "#FFFFFF";
-          context.strokeRect(20 * c, 20 * (r - 2), 20, 20);
+
+  function clearGridCanvas() {
+    gridContext.save();
+
+    gridContext.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+
+    gridContext.restore();
+  }
+
+  function drawGridCanvas() {
+    gridContext.save();
+
+    for (var r = 2; r < grid.rows; r++) {
+      for (var c = 0; c < grid.columns; c++) {
+        if (grid.cells[r][c] != 0) {
+          gridContext.fillStyle = intToRGBHexString(grid.cells[r][c]);
+          gridContext.fillRect(20 * c, 20 * (r - 2), 20, 20);
+          gridContext.strokeStyle = "#FFFFFF";
+          gridContext.strokeRect(20 * c, 20 * (r - 2), 20, 20);
         }
       }
     }
-    context.restore();
+
+    gridContext.restore();
   }
-  function updateNextCanvas() {
-    var context = nextCanvas.getContext("2d");
-    context.save();
-    context.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
+
+  function drawWorkingPiece() {
+    gridContext.save();
+
+    for (var r = 0; r < workingPiece.dimension; r++) {
+      for (var c = 0; c < workingPiece.dimension; c++) {
+        if (workingPiece.cells[r][c] != 0 && r + workingPiece.row >= 2) {
+          gridContext.fillStyle = intToRGBHexString(workingPiece.cells[r][c]);
+          gridContext.fillRect(
+            20 * (c + workingPiece.column),
+            20 * (r + workingPiece.row - 2),
+            20,
+            20
+          );
+          gridContext.strokeStyle = "#FFFFFF";
+          gridContext.strokeRect(
+            20 * (c + workingPiece.column),
+            20 * (r + workingPiece.row - 2),
+            20,
+            20
+          );
+        }
+      }
+    }
+
+    gridContext.restore();
+  }
+
+  function undrawWorkingPiece() {
+    gridContext.save();
+
+    for (var r = 0; r < workingPiece.dimension; r++) {
+      for (var c = 0; c < workingPiece.dimension; c++) {
+        if (workingPiece.cells[r][c] != 0 && r + workingPiece.row >= 2) {
+          gridContext.clearRect(
+            20 * (c + workingPiece.column),
+            20 * (r + workingPiece.row - 2),
+            20,
+            20
+          );
+        }
+      }
+    }
+
+    gridContext.restore();
+  }
+
+  function redrawNextCanvas() {
+    nextContext.save();
+
+    nextContext.clearRect(0, 0, nextCanvas.width, nextCanvas.height);
     var next = workingPieces[1];
     var xOffset =
       next.dimension == 2
@@ -68,26 +123,31 @@ function GameManager() {
     for (var r = 0; r < next.dimension; r++) {
       for (var c = 0; c < next.dimension; c++) {
         if (next.cells[r][c] != 0) {
-          context.fillStyle = intToRGBHexString(next.cells[r][c]);
-          context.fillRect(xOffset + 20 * c, yOffset + 20 * r, 20, 20);
-          context.strokeStyle = "#FFFFFF";
-          context.strokeRect(xOffset + 20 * c, yOffset + 20 * r, 20, 20);
+          nextContext.fillStyle = intToRGBHexString(next.cells[r][c]);
+          nextContext.fillRect(xOffset + 20 * c, yOffset + 20 * r, 20, 20);
+          nextContext.strokeStyle = "#FFFFFF";
+          nextContext.strokeRect(xOffset + 20 * c, yOffset + 20 * r, 20, 20);
         }
       }
     }
-    context.restore();
+
+    nextContext.restore();
   }
+
   function updateScoreContainer() {
     scoreContainer.innerHTML = score.toString();
   }
   function onGravityTimerTick() {
-    if (workingPiece.moveDown(grid)) {
-      updateGridCanvas();
+    if (workingPiece.canMoveDown(grid)) {
+      undrawWorkingPiece();
+      workingPiece.moveDown(grid);
+      drawWorkingPiece();
       return;
     }
     grid.addPiece(workingPiece);
-    updateGridCanvas();
     score += grid.clearLines();
+    clearGridCanvas();
+    drawGridCanvas();
     updateScoreContainer();
     if (!grid.exceeded()) {
       for (var i = 0; i < workingPieces.length - 1; i++) {
@@ -102,10 +162,10 @@ function GameManager() {
         workingPiece = workingPieces[0];
         gravityTimer.resetForward(500);
       }
-      updateNextCanvas();
+      redrawNextCanvas();
     } else {
       gravityTimer.stop();
-      console.log("Game over!");
+      alert("Game over!");
     }
   }
 
@@ -121,18 +181,23 @@ function GameManager() {
         gravityTimer.resetForward(500);
         break;
       case 37: //left
-        if (workingPiece.moveLeft(grid)) {
-          updateGridCanvas();
+        if (workingPiece.canMoveLeft(grid)) {
+          undrawWorkingPiece();
+          workingPiece.moveLeft(grid);
+          drawWorkingPiece();
         }
         break;
       case 39: //right
-        if (workingPiece.moveRight(grid)) {
-          updateGridCanvas();
+        if (workingPiece.canMoveRight(grid)) {
+          undrawWorkingPiece();
+          workingPiece.moveRight(grid);
+          drawWorkingPiece();
         }
         break;
       case 38: //up
+        undrawWorkingPiece();
         workingPiece.rotate(grid);
-        updateGridCanvas();
+        drawWorkingPiece();
         break;
     }
   }
@@ -157,6 +222,6 @@ function GameManager() {
     gravityTimer.resetForward(isAiActive ? 1000 / 60 : 500);
   };
   aiButton.style.backgroundColor = "#e9e9ff";
-  updateNextCanvas();
+  redrawNextCanvas();
   gravityTimer.start();
 }
