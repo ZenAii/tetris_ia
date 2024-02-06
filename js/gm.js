@@ -10,8 +10,12 @@ function GameManager() {
     self.applyGravity();
     self.actuate();
   });
+
   var self = this;
   document.addEventListener("keydown", function (event) {
+    if (self.aiActive) {
+      return;
+    }
     switch (event.which) {
       case 32: //drop
         self.drop();
@@ -54,7 +58,6 @@ GameManager.prototype.setup = function () {
   this.ai = new AI(0.510066, 0.760666, 0.35663, 0.184483);
   this.workingPieces = [this.rpg.nextPiece(), this.rpg.nextPiece()];
   this.workingPiece = this.workingPieces[0];
-
   this.isOver = true;
   this.score = 0;
   this.stopAI();
