@@ -51,7 +51,7 @@ function GameManager() {
 GameManager.prototype.setup = function () {
   this.grid = new Grid(22, 10);
   this.rpg = new RandomPieceGenerator();
-  this.ai = new AI(0.66569, 0.99275, 0.46544, 0.24077);
+  this.ai = new AI(0.510066, 0.760666, 0.35663, 0.184483);
   this.workingPieces = [this.rpg.nextPiece(), this.rpg.nextPiece()];
   this.workingPiece = this.workingPieces[0];
 
@@ -68,7 +68,6 @@ GameManager.prototype.actuate = function () {
   var context = this.gridCanvas.getContext("2d");
   context.save();
   context.clearRect(0, 0, this.gridCanvas.width, this.gridCanvas.height);
-
   for (var r = 2; r < _grid.rows; r++) {
     for (var c = 0; c < _grid.columns; c++) {
       if (_grid.cells[r][c] == 1) {
@@ -80,7 +79,6 @@ GameManager.prototype.actuate = function () {
     }
   }
   context.restore();
-
   context = this.nextCanvas.getContext("2d");
   context.save();
   context.clearRect(0, 0, this.nextCanvas.width, this.nextCanvas.height);
@@ -112,10 +110,8 @@ GameManager.prototype.actuate = function () {
     }
   }
   context.restore();
-
   this.scoreContainer.innerHTML = this.score.toString();
 };
-
 GameManager.prototype.startAI = function () {
   this.aiActive = true;
   this.aiButton.style.backgroundColor = "#e9e9ff";

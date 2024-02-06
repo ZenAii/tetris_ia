@@ -1,11 +1,9 @@
 function Piece(cells) {
   this.cells = cells;
-
   this.dimension = this.cells.length;
   this.row = 0;
   this.column = 0;
 }
-
 Piece.fromIndex = function (index) {
   var piece;
   switch (index) {
@@ -59,7 +57,8 @@ Piece.fromIndex = function (index) {
       break;
   }
   piece.row = 0;
-  piece.column = Math.floor((10 - piece.dimension) / 2);
+  piece.column = Math.floor((10 - piece.dimension) / 2); // Centralize
+
   return piece;
 };
 
@@ -71,13 +70,11 @@ Piece.prototype.clone = function () {
       _cells[r][c] = this.cells[r][c];
     }
   }
-
   var piece = new Piece(_cells);
   piece.row = this.row;
   piece.column = this.column;
   return piece;
 };
-
 Piece.prototype.rotate = function (rotations) {
   for (var i = 0; i < rotations; i++) {
     var _cells = new Array(this.dimension);
@@ -123,6 +120,7 @@ Piece.prototype.rotate = function (rotations) {
         _cells[2][1] = this.cells[2][2];
         break;
     }
+
     this.cells = _cells;
   }
 };
