@@ -9,8 +9,6 @@ function Grid(rows, columns) {
     }
   }
 }
-
-// Methods
 Grid.prototype.clone = function () {
   var _grid = new Grid(this.rows, this.columns);
   for (var r = 0; r < this.rows; r++) {
@@ -38,7 +36,6 @@ Grid.prototype.clearLines = function () {
   }
   return distance;
 };
-// Computations
 Grid.prototype.isLine = function (row) {
   for (var c = 0; c < this.columns; c++) {
     if (this.cells[row][c] == 0) {
@@ -47,9 +44,10 @@ Grid.prototype.isLine = function (row) {
   }
   return true;
 };
+
 Grid.prototype.isEmptyRow = function (row) {
   for (var c = 0; c < this.columns; c++) {
-    if (this.cells[row][c] == 1) {
+    if (this.cells[row][c] != 0) {
       return false;
     }
   }
@@ -77,7 +75,7 @@ Grid.prototype.holes = function () {
   for (var c = 0; c < this.columns; c++) {
     var block = false;
     for (var r = 0; r < this.rows; r++) {
-      if (this.cells[r][c] == 1) {
+      if (this.cells[r][c] != 0) {
         block = true;
       } else if (this.cells[r][c] == 0 && block) {
         count++;
@@ -93,7 +91,7 @@ Grid.prototype.blockades = function () {
     for (var r = this.rows - 1; r >= 0; r--) {
       if (this.cells[r][c] == 0) {
         hole = true;
-      } else if (this.cells[r][c] == 1 && hole) {
+      } else if (this.cells[r][c] != 0 && hole) {
         count++;
       }
     }
@@ -119,14 +117,13 @@ Grid.prototype.columnHeight = function (column) {
   for (; r < this.rows && this.cells[r][column] == 0; r++);
   return this.rows - r;
 };
-// Piece
 Grid.prototype.addPiece = function (piece) {
   for (var r = 0; r < piece.cells.length; r++) {
     for (var c = 0; c < piece.cells[r].length; c++) {
       var _r = piece.row + r;
       var _c = piece.column + c;
-      if (piece.cells[r][c] == 1 && _r >= 0) {
-        this.cells[_r][_c] = 1;
+      if (piece.cells[r][c] != 0 && _r >= 0) {
+        this.cells[_r][_c] = piece.cells[r][c];
       }
     }
   }
@@ -136,7 +133,7 @@ Grid.prototype.valid = function (piece) {
     for (var c = 0; c < piece.cells[r].length; c++) {
       var _r = piece.row + r;
       var _c = piece.column + c;
-      if (piece.cells[r][c] == 1) {
+      if (piece.cells[r][c] != 0) {
         if (!(_c < this.columns && _r < this.rows && this.cells[_r][_c] == 0)) {
           return false;
         }

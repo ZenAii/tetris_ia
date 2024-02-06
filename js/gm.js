@@ -69,19 +69,15 @@ function GameManager() {
   function updateScoreContainer() {
     scoreContainer.innerHTML = score.toString();
   }
-
   function onGravityTimerTick() {
     if (workingPiece.moveDown(grid)) {
       updateGridCanvas();
       return;
     }
-
     grid.addPiece(workingPiece);
     updateGridCanvas();
-
     score += grid.clearLines();
     updateScoreContainer();
-
     if (!grid.exceeded()) {
       for (var i = 0; i < workingPieces.length - 1; i++) {
         workingPieces[i] = workingPieces[i + 1];
@@ -89,7 +85,7 @@ function GameManager() {
       workingPieces[workingPieces.length - 1] = rpg.nextPiece();
       workingPiece = workingPieces[0];
       if (isAiActive) {
-        workingPiece = ai.best(grid, workingPieces, 0).piece;
+        workingPiece = ai.best(grid, workingPieces);
         gravityTimer.reset(1000 / 60);
       } else {
         workingPiece = workingPieces[0];
@@ -101,28 +97,26 @@ function GameManager() {
       alert("Game Over!");
     }
   }
-
   function onKeyDown(event) {
     if (isAiActive) {
       return;
     }
     switch (event.which) {
-      case 32: //drop
+      case 32: // spacebar
         gravityTimer.resetForward(1000 / 60);
         break;
-      case 40: //down
+      case 40: // down
         gravityTimer.resetForward(500);
         break;
       case 37: //left
         if (workingPiece.moveLeft(grid)) {
           updateGridCanvas();
         }
-        updateGridCanvas();
         break;
       case 39: //right
         if (workingPiece.moveRight(grid)) {
+          updateGridCanvas();
         }
-        updateGridCanvas();
         break;
       case 38: //up
         workingPiece.rotate(grid);
@@ -150,6 +144,7 @@ function GameManager() {
     score = 0;
     gravityTimer.resetForward(isAiActive ? 1000 / 60 : 500);
   };
+
   aiButton.style.backgroundColor = "#e9e9ff";
   gravityTimer.start();
 }
