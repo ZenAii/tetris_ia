@@ -138,8 +138,6 @@ GameManager.prototype.setWorkingPiece = function () {
       this.aiMove();
       this.gravityUpdater.skipping = true;
     }
-  } else {
-    alert("Game Over!");
   }
 };
 GameManager.prototype.applyGravity = function () {
