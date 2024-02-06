@@ -7,11 +7,11 @@
 </head>
 <body>
 <div class="container">
-    <h1 class="header">Tetris AI</h1>
+    <h1 class="header"></h1>
     <div class="game-container">
         <canvas width="200px" height="400px" id="grid-canvas" class="grid"></canvas>
         <div class="controls-container">
-            <div id="score-container" class="score-container">9999</div>
+            <div id="score-container" class="score-container">0</div>
             <div id="next-container" class="next-container">
                 <canvas id="next-canvas" class="next-canvas" width="80px" height="80px"></canvas>
             </div>
@@ -24,13 +24,12 @@
 </div>
 <script src="js/grid.js"></script>
 <script src="js/piece.js"></script>
+<script src="js/timer.js"></script>
 <script src="js/gm.js"></script>
 <script src="js/random_piece_generator.js"></script>
 <script src="js/ai.js"></script>
-<script src="js/updater.js"></script>
 <script>
     var manager = new GameManager();
-    manager.actuate(manager.grid, manager.workingPiece);
 </script>
 </body>
 </html>
