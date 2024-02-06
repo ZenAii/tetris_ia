@@ -5,7 +5,6 @@ function GameManager() {
   var resetButton = document.getElementById("reset-button");
   var aiButton = document.getElementById("ai-button");
   document.addEventListener("keydown", onKeyDown);
-
   var grid = new Grid(22, 10);
   var rpg = new RandomPieceGenerator();
   var ai = new AI(0.510066, 0.760666, 0.35663, 0.184483);
@@ -14,13 +13,11 @@ function GameManager() {
   var isAiActive = true;
   var gravityTimer = new Timer(onGravityTimerTick, 1000 / 60);
   var score = 0;
-
   function updateGridCanvas() {
     var _grid = grid.clone();
     if (workingPiece != null) {
       _grid.addPiece(workingPiece);
     }
-
     var context = gridCanvas.getContext("2d");
     context.save();
     context.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
@@ -36,7 +33,6 @@ function GameManager() {
     }
     context.restore();
   }
-
   function updateNextCanvas() {
     var context = nextCanvas.getContext("2d");
     context.save();
@@ -70,40 +66,39 @@ function GameManager() {
     }
     context.restore();
   }
-
   function updateScoreContainer() {
     scoreContainer.innerHTML = score.toString();
   }
 
   function onGravityTimerTick() {
-    if (grid.canMoveDown(workingPiece)) {
-      workingPiece.row++;
+    if (workingPiece.moveDown(grid)) {
       updateGridCanvas();
-    } else {
-      grid.addPiece(workingPiece);
-      updateGridCanvas();
+      return;
+    }
 
-      score += grid.clearLines();
-      updateScoreContainer();
+    grid.addPiece(workingPiece);
+    updateGridCanvas();
 
-      if (!grid.exceeded()) {
-        for (var i = 0; i < workingPieces.length - 1; i++) {
-          workingPieces[i] = workingPieces[i + 1];
-        }
-        workingPieces[workingPieces.length - 1] = rpg.nextPiece();
-        workingPiece = workingPieces[0];
-        if (isAiActive) {
-          workingPiece = ai.best(grid, workingPieces, 0).piece;
-          gravityTimer.reset(1000 / 60);
-        } else {
-          workingPiece = workingPieces[0];
-          gravityTimer.resetForward(500);
-        }
-        updateNextCanvas();
-      } else {
-        gravityTimer.stop();
-        alert("Game Over!");
+    score += grid.clearLines();
+    updateScoreContainer();
+
+    if (!grid.exceeded()) {
+      for (var i = 0; i < workingPieces.length - 1; i++) {
+        workingPieces[i] = workingPieces[i + 1];
       }
+      workingPieces[workingPieces.length - 1] = rpg.nextPiece();
+      workingPiece = workingPieces[0];
+      if (isAiActive) {
+        workingPiece = ai.best(grid, workingPieces, 0).piece;
+        gravityTimer.reset(1000 / 60);
+      } else {
+        workingPiece = workingPieces[0];
+        gravityTimer.resetForward(500);
+      }
+      updateNextCanvas();
+    } else {
+      gravityTimer.stop();
+      alert("Game Over!");
     }
   }
 
@@ -119,29 +114,22 @@ function GameManager() {
         gravityTimer.resetForward(500);
         break;
       case 37: //left
-        if (grid.canMoveLeft(workingPiece)) {
-          workingPiece.column--;
+        if (workingPiece.moveLeft(grid)) {
+          updateGridCanvas();
         }
         updateGridCanvas();
         break;
       case 39: //right
-        if (grid.canMoveRight(workingPiece)) {
-          workingPiece.column++;
+        if (workingPiece.moveRight(grid)) {
         }
         updateGridCanvas();
         break;
       case 38: //up
-        var offset = grid.rotateOffset(workingPiece);
-        if (offset != null) {
-          workingPiece.rotate(1);
-          workingPiece.row += offset.rowOffset;
-          workingPiece.column += offset.columnOffset;
-        }
+        workingPiece.rotate(grid);
         updateGridCanvas();
         break;
     }
   }
-
   aiButton.onclick = function () {
     if (isAiActive) {
       isAiActive = false;
@@ -153,7 +141,6 @@ function GameManager() {
       gravityTimer.resetForward(1000 / 60);
     }
   };
-
   resetButton.onclick = function () {
     gravityTimer.stop();
     grid = new Grid(22, 10);
